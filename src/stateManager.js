@@ -75,7 +75,7 @@ class StateManager {
     this.listeners.push(listener);
 
     return () => {
-      this.listeners = this.listeners.filter((l) => l !== listener);
+      this.listeners = this.listeners.filter(l => l !== listener);
     };
   }
 
@@ -87,7 +87,7 @@ class StateManager {
 
     return () => {
       this.eventListeners[eventName] = this.eventListeners[eventName].filter(
-        (cb) => cb !== callback
+        cb => cb !== callback
       );
     };
   }
@@ -98,8 +98,8 @@ class StateManager {
 
   async applyMiddlewares(prevState, nextState) {
     const enabledMiddlewares = this.middlewares
-      .filter((m) => m.enabled)
-      .map((m) => m.middleware);
+      .filter(m => m.enabled)
+      .map(m => m.middleware);
 
     for (const middleware of enabledMiddlewares) {
       try {
@@ -111,7 +111,7 @@ class StateManager {
   }
 
   notifyListeners() {
-    this.listeners.forEach((listener) => {
+    this.listeners.forEach(listener => {
       try {
         listener(this.getState());
       } catch (err) {
@@ -119,9 +119,9 @@ class StateManager {
       }
     });
 
-    Object.keys(this.eventListeners).forEach((eventName) => {
+    Object.keys(this.eventListeners).forEach(eventName => {
       if (this.state[eventName] !== undefined) {
-        this.eventListeners[eventName].forEach((callback) => {
+        this.eventListeners[eventName].forEach(callback => {
           try {
             callback(this.state[eventName]);
           } catch (err) {
@@ -136,7 +136,7 @@ class StateManager {
     const prevState = this.deepStateComparison
       ? JSON.parse(JSON.stringify(this.state))
       : { ...this.state };
-    
+
     this.state = this.deepStateComparison
       ? JSON.parse(JSON.stringify(this.initialState))
       : { ...this.initialState };
@@ -144,7 +144,7 @@ class StateManager {
     this.prevState = this.deepStateComparison
       ? JSON.parse(JSON.stringify(this.initialState))
       : { ...this.initialState };
-    
+
     await this.applyMiddlewares(prevState, this.state);
     this.notifyListeners();
     this.persistStateToLocalStorage();
@@ -152,7 +152,7 @@ class StateManager {
 
   async setStateAsync(newState, addToUndoStack = true) {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100));
       this.setState(newState, addToUndoStack);
     } catch (err) {
       this.handleError(err);
@@ -192,7 +192,7 @@ class StateManager {
       const nextState = this.deepStateComparison
         ? JSON.parse(JSON.stringify({ ...this.state, ...partialState }))
         : { ...this.state, ...partialState };
-      
+
       await this.applyMiddlewares(this.prevState, nextState);
       this.prevState = this.deepStateComparison
         ? JSON.parse(JSON.stringify(this.state))
@@ -211,12 +211,12 @@ class StateManager {
       const nextState = this.deepStateComparison
         ? JSON.parse(JSON.stringify({ ...this.state, ...partialState }))
         : { ...this.state, ...partialState };
-      
+
       await this.applyMiddlewares(this.prevState, nextState);
       this.prevState = this.deepStateComparison
         ? JSON.parse(JSON.stringify(this.state))
         : { ...this.state };
-      
+
       this.state = nextState;
       this.notifyListeners();
       this.persistStateToLocalStorage();
@@ -227,7 +227,7 @@ class StateManager {
 
   triggerEvent(eventName, eventData) {
     if (this.eventListeners[eventName]) {
-      this.eventListeners[eventName].forEach((callback) => {
+      this.eventListeners[eventName].forEach(callback => {
         try {
           callback(eventData);
         } catch (err) {
@@ -333,7 +333,9 @@ class StateManager {
   }
 
   getEventListenerCount(eventName) {
-    return this.eventListeners[eventName] ? this.eventListeners[eventName].length : 0;
+    return this.eventListeners[eventName]
+      ? this.eventListeners[eventName].length
+      : 0;
   }
 
   removeAllListeners() {
@@ -372,9 +374,9 @@ class StateManager {
       middlewareCount: this.getMiddlewareCount(),
       listenerCount: this.getListenerCount(),
       deepStateComparison: this.deepStateComparison,
-      localStorageKey: this.localStorageKey
+      localStorageKey: this.localStorageKey,
     };
   }
 }
 
-export default StateManager; 
+export default StateManager;

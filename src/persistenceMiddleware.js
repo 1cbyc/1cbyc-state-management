@@ -44,7 +44,10 @@ class PersistenceMiddleware {
       const { fileType } = this.options;
       return fileType === 'json' ? JSON.parse(content) : content;
     } catch (err) {
-      console.error('PersistenceMiddleware: Error parsing file content:', err.message);
+      console.error(
+        'PersistenceMiddleware: Error parsing file content:',
+        err.message
+      );
       return null;
     }
   }
@@ -70,8 +73,6 @@ class PersistenceMiddleware {
     }
   }
 
-
-
   async getFileInfo() {
     try {
       const stats = await fs.stat(this.filePath);
@@ -80,10 +81,13 @@ class PersistenceMiddleware {
         created: stats.birthtime,
         modified: stats.mtime,
         path: this.filePath,
-        options: this.options
+        options: this.options,
       };
     } catch (err) {
-      console.error('PersistenceMiddleware: Error getting file info:', err.message);
+      console.error(
+        'PersistenceMiddleware: Error getting file info:',
+        err.message
+      );
       return null;
     }
   }
@@ -123,7 +127,10 @@ class PersistenceMiddleware {
       await fs.copyFile(this.filePath, backupPath);
       return true;
     } catch (err) {
-      console.error('PersistenceMiddleware: Error creating backup:', err.message);
+      console.error(
+        'PersistenceMiddleware: Error creating backup:',
+        err.message
+      );
       return false;
     }
   }
@@ -137,7 +144,10 @@ class PersistenceMiddleware {
       }
       return null;
     } catch (err) {
-      console.error('PersistenceMiddleware: Error restoring from backup:', err.message);
+      console.error(
+        'PersistenceMiddleware: Error restoring from backup:',
+        err.message
+      );
       return null;
     }
   }
@@ -157,7 +167,10 @@ class PersistenceMiddleware {
       JSON.parse(serialized);
       return true;
     } catch (err) {
-      console.error('PersistenceMiddleware: Invalid state object:', err.message);
+      console.error(
+        'PersistenceMiddleware: Invalid state object:',
+        err.message
+      );
       return false;
     }
   }
@@ -171,7 +184,7 @@ class PersistenceMiddleware {
 
   async loadStateWithValidation() {
     const state = await this.loadState();
-    if (state && await this.validateState(state)) {
+    if (state && (await this.validateState(state))) {
       return state;
     }
     return null;
@@ -186,7 +199,10 @@ class PersistenceMiddleware {
       const stats = await fs.stat(this.filePath);
       return stats.size;
     } catch (err) {
-      console.error('PersistenceMiddleware: Error getting file size:', err.message);
+      console.error(
+        'PersistenceMiddleware: Error getting file size:',
+        err.message
+      );
       return 0;
     }
   }
@@ -201,7 +217,10 @@ class PersistenceMiddleware {
       await fs.truncate(this.filePath, 0);
       return true;
     } catch (err) {
-      console.error('PersistenceMiddleware: Error truncating file:', err.message);
+      console.error(
+        'PersistenceMiddleware: Error truncating file:',
+        err.message
+      );
       return false;
     }
   }
@@ -211,7 +230,10 @@ class PersistenceMiddleware {
       await fs.appendFile(this.filePath, content);
       return true;
     } catch (err) {
-      console.error('PersistenceMiddleware: Error appending to file:', err.message);
+      console.error(
+        'PersistenceMiddleware: Error appending to file:',
+        err.message
+      );
       return false;
     }
   }
@@ -221,7 +243,10 @@ class PersistenceMiddleware {
       const content = await fs.readFile(this.filePath, 'utf-8');
       return content.substring(start, end);
     } catch (err) {
-      console.error('PersistenceMiddleware: Error reading file chunk:', err.message);
+      console.error(
+        'PersistenceMiddleware: Error reading file chunk:',
+        err.message
+      );
       return null;
     }
   }
@@ -229,14 +254,20 @@ class PersistenceMiddleware {
   async writeFileChunk(content, position) {
     try {
       const fileContent = await fs.readFile(this.filePath, 'utf-8');
-      const newContent = fileContent.substring(0, position) + content + fileContent.substring(position);
+      const newContent =
+        fileContent.substring(0, position) +
+        content +
+        fileContent.substring(position);
       await fs.writeFile(this.filePath, newContent);
       return true;
     } catch (err) {
-      console.error('PersistenceMiddleware: Error writing file chunk:', err.message);
+      console.error(
+        'PersistenceMiddleware: Error writing file chunk:',
+        err.message
+      );
       return false;
     }
   }
 }
 
-export default PersistenceMiddleware; 
+export default PersistenceMiddleware;

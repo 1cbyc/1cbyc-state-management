@@ -51,7 +51,7 @@ describe('StateManager', () => {
       let callbackCalled = false;
       let receivedState = null;
 
-      const unsubscribe = store.subscribe((state) => {
+      const unsubscribe = store.subscribe(state => {
         callbackCalled = true;
         receivedState = state;
       });
@@ -65,21 +65,21 @@ describe('StateManager', () => {
 
     it('should allow multiple subscriptions', async () => {
       let callCount = 0;
-      
+
       store.subscribe(() => callCount++);
       store.subscribe(() => callCount++);
-      
+
       await store.setState({ count: 1 });
       expect(callCount).to.equal(2);
     });
 
     it('should unsubscribe correctly', async () => {
       let callCount = 0;
-      
+
       const unsubscribe = store.subscribe(() => callCount++);
       await store.setState({ count: 1 });
       expect(callCount).to.equal(1);
-      
+
       unsubscribe();
       await store.setState({ count: 2 });
       expect(callCount).to.equal(1);
@@ -89,8 +89,8 @@ describe('StateManager', () => {
   describe('Event System', () => {
     it('should handle custom events', () => {
       let eventData = null;
-      
-      store.on('userLogin', (data) => {
+
+      store.on('userLogin', data => {
         eventData = data;
       });
 
@@ -100,21 +100,21 @@ describe('StateManager', () => {
 
     it('should handle multiple event listeners', () => {
       let callCount = 0;
-      
+
       store.on('test', () => callCount++);
       store.on('test', () => callCount++);
-      
+
       store.triggerEvent('test', {});
       expect(callCount).to.equal(2);
     });
 
     it('should unsubscribe from events', () => {
       let callCount = 0;
-      
+
       const unsubscribe = store.on('test', () => callCount++);
       store.triggerEvent('test', {});
       expect(callCount).to.equal(1);
-      
+
       unsubscribe();
       store.triggerEvent('test', {});
       expect(callCount).to.equal(1);
@@ -125,7 +125,7 @@ describe('StateManager', () => {
     it('should support undo operations', async () => {
       await store.setState({ count: 1 });
       await store.setState({ count: 2 });
-      
+
       store.undo();
       expect(store.getState()).to.deep.equal({ count: 1 });
     });
@@ -135,7 +135,7 @@ describe('StateManager', () => {
       await store.setState({ count: 2 });
       store.undo();
       store.redo();
-      
+
       expect(store.getState()).to.deep.equal({ count: 2 });
     });
 
@@ -144,7 +144,7 @@ describe('StateManager', () => {
       await store.setState({ count: 2 });
       store.undo();
       await store.setState({ count: 3 });
-      
+
       expect(store.getRedoStackSize()).to.equal(0);
     });
 
@@ -163,7 +163,7 @@ describe('StateManager', () => {
     it('should apply middleware correctly', async () => {
       let middlewareCalled = false;
       let middlewareData = null;
-      
+
       const middleware = (prevState, nextState) => {
         middlewareCalled = true;
         middlewareData = { prevState, nextState };
@@ -171,7 +171,7 @@ describe('StateManager', () => {
 
       store.applyMiddleware(middleware);
       await store.setState({ count: 1 });
-      
+
       expect(middlewareCalled).to.be.true;
       expect(middlewareData.prevState).to.deep.equal({});
       expect(middlewareData.nextState).to.deep.equal({ count: 1 });
@@ -179,20 +179,20 @@ describe('StateManager', () => {
 
     it('should handle multiple middleware', async () => {
       let callCount = 0;
-      
+
       const middleware1 = () => callCount++;
       const middleware2 = () => callCount++;
-      
+
       store.applyMiddleware(middleware1);
       store.applyMiddleware(middleware2);
       await store.setState({ count: 1 });
-      
+
       expect(callCount).to.equal(2);
     });
 
     it('should handle async middleware', async () => {
       let resolved = false;
-      
+
       const asyncMiddleware = async () => {
         await new Promise(resolve => setTimeout(resolve, 10));
         resolved = true;
@@ -200,23 +200,23 @@ describe('StateManager', () => {
 
       store.applyMiddleware(asyncMiddleware);
       await store.setState({ count: 1 });
-      
+
       await new Promise(resolve => setTimeout(resolve, 20));
       expect(resolved).to.be.true;
     });
   });
 
   describe('Debouncing', () => {
-    it('should debounce state updates', (done) => {
+    it('should debounce state updates', done => {
       let updateCount = 0;
-      
+
       store.subscribe(() => updateCount++);
       store.setDebounce(50);
-      
+
       store.setState({ count: 1 }, true, true);
       store.setState({ count: 2 }, true, true);
       store.setState({ count: 3 }, true, true);
-      
+
       setTimeout(() => {
         expect(updateCount).to.equal(1);
         expect(store.getState()).to.deep.equal({ count: 3 });
@@ -228,14 +228,14 @@ describe('StateManager', () => {
   describe('Batch Updates', () => {
     it('should handle batch updates', async () => {
       let updateCount = 0;
-      
+
       store.subscribe(() => updateCount++);
-      
+
       store.startBatchUpdate();
       await store.queueBatchUpdate({ count: 1 });
       await store.queueBatchUpdate({ name: 'test' });
       await store.endBatchUpdate();
-      
+
       expect(updateCount).to.equal(1);
       expect(store.getState()).to.deep.equal({ count: 1, name: 'test' });
     });
@@ -245,20 +245,20 @@ describe('StateManager', () => {
     it('should enable deep state comparison', async () => {
       store.enableDeepStateComparison();
       await store.setState({ nested: { value: 1 } });
-      
+
       const state = store.getState();
       state.nested.value = 2;
-      
+
       expect(store.getState().nested.value).to.equal(1);
     });
 
     it('should disable deep state comparison', async () => {
       store.disableDeepStateComparison();
       await store.setState({ nested: { value: 1 } });
-      
+
       const state = store.getState();
       state.nested.value = 2;
-      
+
       expect(store.getState().nested.value).to.equal(2);
     });
   });
@@ -266,15 +266,15 @@ describe('StateManager', () => {
   describe('Error Handling', () => {
     it('should handle errors gracefully', async () => {
       let errorCaught = false;
-      
-      store.setErrorHandler((_error) => {
+
+      store.setErrorHandler(_error => {
         errorCaught = true;
       });
 
       const middleware = () => {
         throw new Error('Middleware error');
       };
-      
+
       store.applyMiddleware(middleware);
       await store.setState({ count: 1 });
       expect(errorCaught).to.be.true;
@@ -282,8 +282,8 @@ describe('StateManager', () => {
 
     it('should handle listener errors', async () => {
       let errorCaught = false;
-      
-      store.setErrorHandler((_error) => {
+
+      store.setErrorHandler(_error => {
         errorCaught = true;
       });
 
@@ -303,7 +303,7 @@ describe('StateManager', () => {
         // Empty middleware for testing
       });
       store.subscribe(() => {});
-      
+
       const snapshot = store.getStateSnapshot();
       expect(snapshot.state).to.deep.equal({ count: 1 });
       expect(snapshot.middlewareCount).to.equal(1);
@@ -314,7 +314,7 @@ describe('StateManager', () => {
       await store.setState({ count: 1 });
       await store.setState({ count: 2 });
       store.undo();
-      
+
       store.clearHistory();
       expect(store.getUndoStackSize()).to.equal(0);
       expect(store.getRedoStackSize()).to.equal(0);
@@ -327,7 +327,7 @@ describe('StateManager', () => {
       store.subscribe(() => {
         // Empty listener for testing
       });
-      
+
       store.removeAllListeners();
       expect(store.getListenerCount()).to.equal(0);
     });
@@ -339,7 +339,7 @@ describe('StateManager', () => {
       store.on('test', () => {
         // Empty event listener for testing
       });
-      
+
       store.removeAllEventListeners('test');
       expect(store.getEventListenerCount('test')).to.equal(0);
     });
@@ -365,10 +365,10 @@ describe('PersistenceMiddleware', () => {
   describe('Basic Operations', () => {
     it('should save and load state correctly', async () => {
       const testState = { count: 1, name: 'test' };
-      
+
       const saveResult = await middleware.saveState(testState);
       expect(saveResult).to.be.true;
-      
+
       const loadedState = await middleware.loadState();
       expect(loadedState).to.deep.equal(testState);
     });
@@ -376,10 +376,10 @@ describe('PersistenceMiddleware', () => {
     it('should handle file operations', async () => {
       const testState = { count: 1 };
       await middleware.saveState(testState);
-      
+
       const fileExists = await middleware.fileExists();
       expect(fileExists).to.be.true;
-      
+
       const fileInfo = await middleware.getFileInfo();
       expect(fileInfo.path).to.equal(testFilePath);
       expect(fileInfo.size).to.be.greaterThan(0);
@@ -388,14 +388,14 @@ describe('PersistenceMiddleware', () => {
     it('should handle file renaming', async () => {
       const testState = { count: 1 };
       await middleware.saveState(testState);
-      
+
       const newPath = 'renamed-state.json';
       const renameResult = await middleware.renameFile(newPath);
       expect(renameResult).to.be.true;
-      
+
       const fileExists = await middleware.fileExists();
       expect(fileExists).to.be.true;
-      
+
       try {
         await fs.unlink(newPath);
       } catch (_error) {
@@ -406,10 +406,10 @@ describe('PersistenceMiddleware', () => {
     it('should handle file deletion', async () => {
       const testState = { count: 1 };
       await middleware.saveState(testState);
-      
+
       const deleteResult = await middleware.deleteFile();
       expect(deleteResult).to.be.true;
-      
+
       const fileExists = await middleware.fileExists();
       expect(fileExists).to.be.false;
     });
@@ -418,8 +418,11 @@ describe('PersistenceMiddleware', () => {
   describe('Configuration', () => {
     it('should handle custom options', () => {
       const customOptions = { spaces: 4, fileType: 'json', version: 2 };
-      const customMiddleware = new PersistenceMiddleware('custom.json', customOptions);
-      
+      const customMiddleware = new PersistenceMiddleware(
+        'custom.json',
+        customOptions
+      );
+
       expect(customMiddleware.getOptions()).to.deep.equal(customOptions);
     });
 
@@ -440,10 +443,10 @@ describe('PersistenceMiddleware', () => {
       const validState = { count: 1 };
       const invalidState = { circular: null };
       invalidState.circular = invalidState;
-      
+
       const validResult = await middleware.validateState(validState);
       expect(validResult).to.be.true;
-      
+
       const invalidResult = await middleware.validateState(invalidState);
       expect(invalidResult).to.be.false;
     });
@@ -459,14 +462,14 @@ describe('PersistenceMiddleware', () => {
     it('should create and restore backups', async () => {
       const testState = { count: 1 };
       await middleware.saveState(testState);
-      
+
       const backupResult = await middleware.backupState(testState);
       expect(backupResult).to.be.true;
-      
+
       await middleware.deleteFile();
       const restoredState = await middleware.restoreFromBackup();
       expect(restoredState).to.deep.equal(testState);
-      
+
       try {
         await fs.unlink(`${testFilePath}.backup`);
       } catch (_error) {
@@ -479,10 +482,10 @@ describe('PersistenceMiddleware', () => {
     it('should handle file size operations', async () => {
       const testState = { count: 1 };
       await middleware.saveState(testState);
-      
+
       const size = await middleware.getFileSize();
       expect(size).to.be.greaterThan(0);
-      
+
       const isEmpty = await middleware.isFileEmpty();
       expect(isEmpty).to.be.false;
     });
@@ -490,10 +493,10 @@ describe('PersistenceMiddleware', () => {
     it('should handle file truncation', async () => {
       const testState = { count: 1 };
       await middleware.saveState(testState);
-      
+
       const truncateResult = await middleware.truncateFile();
       expect(truncateResult).to.be.true;
-      
+
       const isEmpty = await middleware.isFileEmpty();
       expect(isEmpty).to.be.true;
     });
@@ -503,7 +506,7 @@ describe('PersistenceMiddleware', () => {
     it('should handle save errors gracefully', async () => {
       const invalidPath = '/invalid/path/state.json';
       const invalidMiddleware = new PersistenceMiddleware(invalidPath);
-      
+
       const result = await invalidMiddleware.saveState({ count: 1 });
       expect(result).to.be.false;
     });
