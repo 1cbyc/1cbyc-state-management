@@ -1,0 +1,55 @@
+{
+  "name": "1cbyc-state-management",
+  "version": "1.0.0",
+  "description": "A sophisticated state management library for complex web applications",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "mocha test/**/*.js",
+    "test:watch": "mocha test/**/*.js --watch",
+    "test:coverage": "nyc mocha test/**/*.js",
+    "lint": "eslint src/**/*.js test/**/*.js",
+    "lint:fix": "eslint src/**/*.js test/**/*.js --fix",
+    "format": "prettier --write src/**/*.js test/**/*.js",
+    "format:check": "prettier --check src/**/*.js test/**/*.js",
+    "build": "echo 'No build step required for ES modules'",
+    "size-check": "echo 'Bundle size check - implement if needed'",
+    "prepublishOnly": "npm test && npm run lint && npm run format:check",
+    "prepare": "npm run lint && npm run format"
+  },
+  "keywords": [
+    "state-management",
+    "store",
+    "middleware",
+    "persistence",
+    "undo-redo",
+    "events",
+    "javascript",
+    "es6"
+  ],
+  "author": "1cbyc <github.com/1cbyc>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1cbyc/1cbyc-state-management.git"
+  },
+  "bugs": {
+    "url": "https://github.com/1cbyc/1cbyc-state-management/issues"
+  },
+  "homepage": "https://github.com/1cbyc/1cbyc-state-management#readme",
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "src/**/*.js",
+    "README.md",
+    "LICENSE"
+  ]
+}
