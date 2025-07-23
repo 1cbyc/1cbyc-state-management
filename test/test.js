@@ -267,7 +267,7 @@ describe('StateManager', () => {
     it('should handle errors gracefully', async () => {
       let errorCaught = false;
       
-      store.setErrorHandler((error) => {
+      store.setErrorHandler((_error) => {
         errorCaught = true;
       });
 
@@ -283,7 +283,7 @@ describe('StateManager', () => {
     it('should handle listener errors', async () => {
       let errorCaught = false;
       
-      store.setErrorHandler((error) => {
+      store.setErrorHandler((_error) => {
         errorCaught = true;
       });
 
@@ -299,7 +299,9 @@ describe('StateManager', () => {
   describe('Utility Methods', () => {
     it('should provide state snapshot', async () => {
       await store.setState({ count: 1 });
-      store.applyMiddleware(() => {});
+      store.applyMiddleware(() => {
+        // Empty middleware for testing
+      });
       store.subscribe(() => {});
       
       const snapshot = store.getStateSnapshot();
@@ -319,16 +321,24 @@ describe('StateManager', () => {
     });
 
     it('should remove all listeners', () => {
-      store.subscribe(() => {});
-      store.subscribe(() => {});
+      store.subscribe(() => {
+        // Empty listener for testing
+      });
+      store.subscribe(() => {
+        // Empty listener for testing
+      });
       
       store.removeAllListeners();
       expect(store.getListenerCount()).to.equal(0);
     });
 
     it('should remove all event listeners', () => {
-      store.on('test', () => {});
-      store.on('test', () => {});
+      store.on('test', () => {
+        // Empty event listener for testing
+      });
+      store.on('test', () => {
+        // Empty event listener for testing
+      });
       
       store.removeAllEventListeners('test');
       expect(store.getEventListenerCount('test')).to.equal(0);
@@ -347,7 +357,8 @@ describe('PersistenceMiddleware', () => {
   afterEach(async () => {
     try {
       await fs.unlink(testFilePath);
-    } catch (error) {
+    } catch (_error) {
+      // Ignore file not found errors
     }
   });
 
@@ -387,7 +398,8 @@ describe('PersistenceMiddleware', () => {
       
       try {
         await fs.unlink(newPath);
-      } catch (error) {
+      } catch (_error) {
+        // Ignore file not found errors
       }
     });
 
@@ -457,7 +469,8 @@ describe('PersistenceMiddleware', () => {
       
       try {
         await fs.unlink(`${testFilePath}.backup`);
-      } catch (error) {
+      } catch (_error) {
+        // Ignore file not found errors
       }
     });
   });
